@@ -1,8 +1,7 @@
-*.beam
-
 #*
 .#*
 *~
 
 ebin/
 ebin/*
+*.beam
