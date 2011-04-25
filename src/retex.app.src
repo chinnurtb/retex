@@ -1,0 +1,12 @@
+{application, retex,
+ [
+  {description, ""},
+  {vsn, "1"},
+  {registered, []},
+  {applications, [
+                  kernel,
+                  stdlib
+                 ]},
+  {mod, { retex_app, []}},
+  {env, []}
+ ]}.
