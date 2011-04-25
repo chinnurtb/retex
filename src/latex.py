@@ -7,36 +7,42 @@ from plasTeX.DOM import Node
 from plasTeX.TeX import TeX
 import hashlib
 
-### parse tree formatter ###
+### parse tree extractor ###
 
-class Formatter(object):
-    
-    def __init__(self):
-        self.elements = []
-        
+class Leaf(object):
+    def __init__(self, name):
+        self.name = name
+
+    def update_hash(self, hash):
+        hash.update(self.name)
+
     def __str__(self):
-        return " ".join(self.elements)
+        return self.name
 
-    def hash(self):
-        md5 = hashlib.md5()
-        for element in self.elements:
-            if element.lstrip(' '):
-                md5.update(element)
-        return md5.digest()
-  
-    def formatNode(self, node):
-        if node.nodeType == Node.TEXT_NODE:
-            self.elements.append(unicode(node))
-        else:
-            macro = unicode(node.nodeName)
-            if macro.startswith("active::"):
-                self.elements.append(macro.lstrip("active::"))
-            else:
-                self.elements.append("\\" + macro)
-            self.formatNodeChildren(node)
+class Branch(object):
+    def __init__(self, name):
+        self.name = name
+        self.children = []
 
-    def formatNodeChildren(self, node):
-        # see if we have any attributes to format
+    def add_child(self, child):
+        if not(child.name.isspace()):
+            self.children.append(child)
+
+    def update_hash(self, hash):
+        hash.update(self.name)
+        for child in self.children:
+            child.update_hash(hash)
+
+    def __str__(self):
+        return "(%s)" % " ".join([self.name] + map(str,self.children))
+
+def plastex_node_to_ast(node):
+    if node.nodeType == Node.TEXT_NODE:
+        return Leaf(unicode(node))
+    else:
+        branch = Branch(unicode(node.nodeName))
+
+        # see if we have any attributes to extract
         if node.hasAttributes():
             for key, value in node.attributes.items():
                 # if the key is 'self' these nodes are the same as the child nodes
@@ -44,39 +50,31 @@ class Formatter(object):
                 if key == 'self' or key == '*modifier*':
                     pass
                 elif type(value) is TeXFragment:
-                    self.openBracket()
                     for child in value.childNodes:
-                        self.formatNode(child)
-                    self.closeBracket()
+                        branch.add_child(plastex_node_to_ast(child))
                 elif type(value) is Node:
-                    self.openBracket()
-                    self.formatNode(value)
-                    self.closeBracket()
+                    branch.add_child(plastex_node_to_ast(value))
                 else:
                     pass
 
-        # format child nodes
+        # extract child nodes
         if node.childNodes:
-            self.openBracket()
             for child in node.childNodes:
-                self.formatNode(child)
-            self.closeBracket()
+                branch.add_child(plastex_node_to_ast(child))
 
-    def openBracket(self):
-        self.elements.append("{")
+        return branch
 
-    def closeBracket(self):
-        self.elements.append("}")
-
-def format(string):
+def latex_to_ast(latex):
     tex = TeX()
     # tex.disableLogging()
-    tex.input(string)
-    syntax_tree = tex.parse()
+    tex.input(latex)
+    plastex_node = tex.parse()
+    return plastex_node_to_ast(plastex_node)
 
-    formatter = Formatter()
-    formatter.formatNode(syntax_tree)
-    return formatter
+def hash_ast(ast):
+    md5 = hashlib.md5()
+    ast.update_hash(md5)
+    return md5.digest()
 
 ### interaction with an erlang port  ###
 
@@ -109,9 +107,9 @@ def main():
     request = port.recv()
     while request:
         if command == 'ast':
-            response = str(format(request))
+            response = str(latex_to_ast(request))
         elif command == 'hash':
-            response = format(request).hash()
+            response = hash_ast(latex_to_ast(request))
         port.send(response) 
         request = port.recv()
 
