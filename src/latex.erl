@@ -16,9 +16,8 @@ interact(Command, Request, Timeout) ->
     end.
 
 ast(Latex, Timeout) ->
-    interact("./latex_ast", Latex, Timeout).
+    interact("./src/latex_ast", Latex, Timeout).
 
 hash(Latex, Timeout) ->
-    interact("./latex_hash", Latex, Timeout).
-
-
+    interact("./src/latex_hash", Latex, Timeout).
+    
