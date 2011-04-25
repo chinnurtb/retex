@@ -5,3 +5,5 @@
 ebin/
 ebin/*
 *.beam
+
+*.pyc
