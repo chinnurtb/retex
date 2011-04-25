@@ -1,2 +1,3 @@
 #!/bin/bash
-python latex.py hash
+dir=$(dirname $0)
+python $dir/latex.py hash
