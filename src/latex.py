@@ -29,9 +29,7 @@ class Formatter(object):
             self.elements.append(unicode(node))
         else:
             macro = unicode(node.nodeName)
-            if macro.startswith("#"):
-                pass # these are used for implicit nodes?
-            elif macro.startswith("active::"):
+            if macro.startswith("active::"):
                 self.elements.append(macro.lstrip("active::"))
             else:
                 self.elements.append("\\" + macro)
@@ -83,22 +81,39 @@ def format(string):
 ### interaction with an erlang port  ###
 
 import sys
+import struct
 
-def requests():
-    line = sys.stdin.readline()
-    while line:
-        yield line
-        line = sys.stdin.readline()
+# ErlangPort by thanos vassilakis
+class ErlangPort(object):
+    PACK = '>H'
+    def __init__(self):
+        self._in = sys.stdin
+        self._out = sys.stdout
+        
+    def recv(self):
+        buf = self._in.read(2)
+        if len(buf) == 2:
+            (sz,) = struct.unpack(self.PACK, buf)
+            return self._in.read(sz)
+        
+    def send(self, what):
+        sz = len(what)
+        buf = struct.pack(self.PACK, sz)
+        self._out.write(buf)
+        self._out.write(what)
+        self._out.flush()
 
 def main():
     command = sys.argv[1]
-    for request in requests():
-        if command == 'format':
+    port = ErlangPort()
+    request = port.recv()
+    while request:
+        if command == 'ast':
             response = str(format(request))
         elif command == 'hash':
             response = format(request).hash()
-        sys.stdout.write("%s\n" % response)
-        sys.stdout.flush()
+        port.send(response) 
+        request = port.recv()
 
 if __name__ == "__main__":
     main()
