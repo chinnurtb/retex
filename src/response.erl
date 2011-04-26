@@ -2,10 +2,11 @@
 
 -include("types.hrl").
 
--export([start/0, get/1, new/3]).
+-export([start/0, read/1, new/3]).
 
 -define(RETRIES, 10).
 
+-spec start() -> 'ok'.
 start() ->
     ok = 
 	db:ensure_table(
@@ -16,12 +17,14 @@ start() ->
 	  ]
 	 ).
 
-get(Id) ->
+-spec read(id()) -> {'ok', #response{}} | {'error', 'not_found'}.
+read(Id) ->
     case mnesia:dirty_read({response, Id}) of
 	[] -> {error, not_found};
 	[Response] -> {ok, Response}
     end.
 
+-spec new(id(), binary(), list(binary())) -> id().
 new(Challenge_id, User_id, Latexs) ->
     Id = id:new(response),
     {atomic, _} =
@@ -30,7 +33,7 @@ new(Challenge_id, User_id, Latexs) ->
 		  {ok, #challenge{
 		     generated=Generated, 
 		     source=Source, 
-		     formulae=Formulae}} = challenge:get(Challenge_id),
+		     formulae=Formulae}} = challenge:read(Challenge_id),
 		  Response = #response{
 		    id=Id,
 		    generated=Generated,
