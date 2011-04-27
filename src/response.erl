@@ -45,7 +45,7 @@ new(Challenge_id, User_id, Latexs) ->
 		    hashes=lists:map(fun latex:hash/1, Latexs)
 		   },
 		  ok = mnesia:write(Response),
-		  challenge:responded(Challenge_id)
+		  ok = challenge:responded(Challenge_id)
 	  end,
 	  ?RETRIES
 	 ),
