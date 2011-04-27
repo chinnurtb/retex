@@ -33,14 +33,14 @@ new(Challenge_id, User_id, Latexs) ->
 		  {ok, #challenge{
 		     generated=Generated, 
 		     source=Source, 
-		     formulae=Formulae}} = challenge:read(Challenge_id),
+		     formulas=Formulas}} = challenge:read(Challenge_id),
 		  Response = #response{
 		    id=Id,
 		    generated=Generated,
 		    submitted=now(),
 		    source=Source,
 		    user_id=User_id,
-		    formulae=Formulae,
+		    formulas=Formulas,
 		    latexs=Latexs,
 		    hashes=lists:map(fun latex:hash/1, Latexs)
 		   },
