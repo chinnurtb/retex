@@ -1,10 +1,6 @@
 -module(db).
 
--export([start/0, ensure_schema/0, ensure_table/2]).
-
--spec start() -> ok.
-start() ->
-    ok = mnesia:start().
+-export([ensure_schema/0, ensure_table/2]).
 
 -spec ensure_schema() -> ok | {error, Reason :: term()}.
 ensure_schema() ->
