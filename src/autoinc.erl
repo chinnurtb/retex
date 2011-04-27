@@ -20,11 +20,11 @@ read(Table, Key) ->
     [#pointer{value=Value}] = mnesia:read({Table, Key}),
     Value.
 
--spec write(atom(), key(), value()) -> 'ok'.
+-spec write(atom(), key(), value()) -> ok.
 write(Table, Key, Value) ->
     ok = mnesia:write(Table, #pointer{key=Key, value=Value}, write).
 
--spec start(atom()) -> 'ok'.
+-spec start(atom()) -> ok.
 start(Table) ->
     ok = 
 	db:ensure_table(
@@ -63,14 +63,14 @@ put(Table, Id) ->
 	 ),
     Next.
 
--spec get(atom(), integer()) -> {'error', 'not_found'} | {'ok', id()}.
+-spec get(atom(), integer()) -> {error, not_found} | {ok, id()}.
 get(Table, Key) ->
     case mnesia:dirty_read({Table, Key}) of
 	[] -> {error, not_found};
 	[#pointer{value=Value}] -> {ok, Value}
     end.
 
--spec random(atom()) -> 'none' | {'ok', id()}.
+-spec random(atom()) -> none | {ok, id()}.
 random(Table) ->
     Next = read(Table, next),
     if 

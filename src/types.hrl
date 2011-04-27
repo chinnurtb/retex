@@ -1,5 +1,5 @@
 -type id() :: binary(). % 32 alphanumeric characters, where the first 4 characters indicate the type
--type id_type() :: ('formula' | 'challenge' | 'response'). % possible id types
+-type id_type() :: (formula | challenge | response). % possible id types
 
 -type now() :: {integer(), integer(), integer()}.
 

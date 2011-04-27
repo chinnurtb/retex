@@ -6,7 +6,7 @@
 
 -define(TIMEOUT, 1000*60*5). % 5 minutes
 
--spec start() -> 'ok'.
+-spec start() -> ok.
 start() ->
     ok = 
 	db:ensure_table(
@@ -17,7 +17,7 @@ start() ->
 	  ]
 	 ).
 
--spec read(id()) -> {'ok', #challenge{}} | {'error', 'not_found'}.
+-spec read(id()) -> {ok, #challenge{}} | {error, not_found}.
 read(Id) ->
     case mnesia:dirty_read({challenge, Id}) of
 	[] -> {error, not_found};
@@ -32,10 +32,10 @@ new(Source, Formulas) ->
     ok = mnesia:dirty_write(Challenge),
     Id.
 
--spec timeout(id()) -> 'ok'.
+-spec timeout(id()) -> ok.
 timeout(Id) ->
     ok = mnesia:dirty_delete({challenge, Id}). 
 
--spec responded(id()) -> 'ok'.
+-spec responded(id()) -> ok.
 responded(Id) ->
     ok = mnesia:dirty_delete({challenge, Id}). 

@@ -6,7 +6,7 @@
 
 -define(RETRIES, 10).
 
--spec start() -> 'ok'.
+-spec start() -> ok.
 start() ->
     ok = 
 	db:ensure_table(
@@ -17,7 +17,7 @@ start() ->
 	  ]
 	 ).
 
--spec read(id()) -> {'ok', #response{}} | {'error', 'not_found'}.
+-spec read(id()) -> {ok, #response{}} | {error, not_found}.
 read(Id) ->
     case mnesia:dirty_read({response, Id}) of
 	[] -> {error, not_found};

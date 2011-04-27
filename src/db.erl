@@ -2,11 +2,11 @@
 
 -export([start/0, ensure_schema/0, ensure_table/2]).
 
--spec start() -> 'ok'.
+-spec start() -> ok.
 start() ->
     ok = mnesia:start().
 
--spec ensure_schema() -> 'ok' | {'error', Reason :: term()}.
+-spec ensure_schema() -> ok | {error, Reason :: term()}.
 ensure_schema() ->
     case mnesia:create_schema([node()]) of
 	ok ->
@@ -17,7 +17,7 @@ ensure_schema() ->
 	    {error, Error}
     end.
 
--spec ensure_table(atom(), Tab_def :: list({atom(), term()})) ->  'ok' | {'error', Reason :: term()}.
+-spec ensure_table(atom(), Tab_def :: list({atom(), term()})) ->  ok | {error, Reason :: term()}.
 ensure_table(Name, Tab_def) ->
     case mnesia:create_table(Name, Tab_def) of
 	{atomic, ok} ->
