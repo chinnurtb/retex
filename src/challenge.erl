@@ -24,13 +24,13 @@ read(Id) ->
 	[Challenge] -> {ok, Challenge}
     end.
 
--spec new(term(), list(binary())) -> id().
+-spec new(term(), list(binary())) -> #challenge{}.
 new(Source, Formulas) ->
     Id = id:new(challenge),
     Challenge = #challenge{id=Id, generated=now(), source=Source, formulas=Formulas},
     {ok, _} = timer:apply_after(?TIMEOUT, challenge, timeout, [Id]),
     ok = mnesia:dirty_write(Challenge),
-    Id.
+    Challenge.
 
 -spec timeout(id()) -> ok.
 timeout(Id) ->

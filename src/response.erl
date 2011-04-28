@@ -24,10 +24,10 @@ read(Id) ->
 	[Response] -> {ok, Response}
     end.
 
--spec new(id(), binary(), list(binary())) -> id().
+-spec new(id(), binary(), list(binary())) -> #response{}.
 new(Challenge_id, User_id, Latexs) ->
     Id = id:new(response),
-    {atomic, _} =
+    {atomic, Response} =
 	mnesia:transaction(
 	  fun () ->
 		  {ok, #challenge{
@@ -45,8 +45,9 @@ new(Challenge_id, User_id, Latexs) ->
 		    hashes=lists:map(fun latex:hash/1, Latexs)
 		   },
 		  ok = mnesia:write(Response),
-		  ok = challenge:responded(Challenge_id)
+		  ok = challenge:responded(Challenge_id),
+		  Response
 	  end,
 	  ?RETRIES
 	 ),
-    Id.
+    Response.

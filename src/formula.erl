@@ -6,7 +6,7 @@
 
 -define(RETRIES, 10).
 
--spec start() -> 'ok'.
+-spec start() -> ok.
 start() ->
     ok = 
 	db:ensure_table(
@@ -19,14 +19,14 @@ start() ->
     % this table maps autoincrementing ids to formula ids, so we can pick formulas at random
     ok = autoinc:start(formula_all).
 
--spec read(id()) -> {'ok', #formula{}} | {'error', 'not_found'}.
+-spec read(id()) -> {ok, #formula{}} | {error, not_found}.
 read(Id) ->
     case mnesia:dirty_read({formula, Id}) of
 	[] -> {error, not_found};
 	[Formula] -> {ok, Formula}
     end.
 
--spec new(binary(), binary(), binary(), binary()) -> id().
+-spec new(binary(), binary(), binary(), binary()) -> #formula{}.
 new(Source, Source_id, Url, Latex) ->
     Id = id:new(formula),
     Formula = #formula{id=Id, source=Source, source_id=Source_id, url=Url, latex=Latex},
@@ -38,7 +38,7 @@ new(Source, Source_id, Url, Latex) ->
 	  end,
 	  ?RETRIES
 	 ),
-    Id.
+    Formula.
 
 -spec random() -> #formula{}.
 random() ->
