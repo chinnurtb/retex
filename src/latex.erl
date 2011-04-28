@@ -18,9 +18,9 @@ interact(Command, Request) when is_list(Command) and is_binary(Request) ->
 
 -spec ast(binary()) -> Ast :: binary().
 ast(Latex) ->
-    interact("./src/latex_ast", Latex).
+    interact("./scripts/jail_latex_ast", Latex).
 
 -spec hash(binary()) -> Hash :: binary().
 hash(Latex) ->
-    interact("./src/latex_hash", Latex).
+    interact("./scripts/jail_latex_hash", Latex).
     

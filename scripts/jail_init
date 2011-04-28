@@ -1,0 +1,9 @@
+#!/bin/bash
+
+useradd jail
+mkdir /jail
+jk_cp /jail /usr/bin/python
+jk_cp /jail /usr/lib/python*/
+jk_cp /jail /usr/lib/pymodules/python*/plasTeX/
+cp src/latex.py /jail/latex.py
+chmod a+rx /jail/latex.py

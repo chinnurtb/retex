@@ -1,0 +1,3 @@
+#!/bin/bash
+
+jk_chrootlaunch -u jail -g jail -j /jail -x /jail/latex.py -- $1
