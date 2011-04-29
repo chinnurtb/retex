@@ -1,11 +1,17 @@
+%%-*- mode: erlang -*-
 {application, retex,
  [
-  {description, ""},
+  {description, "retex"},
   {vsn, "1"},
+  {modules, []},
   {registered, []},
   {applications, [
                   kernel,
-                  stdlib
+                  stdlib,
+                  inets,
+                  crypto,
+                  mochiweb,
+                  webmachine
                  ]},
   {mod, { retex_app, []}},
   {env, []}
