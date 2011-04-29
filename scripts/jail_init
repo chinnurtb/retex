@@ -1,9 +1,17 @@
 #!/bin/bash
 
+# create user 'jail' with no priveleges
 useradd jail
+
+# make a chroot jail that can run latex.py
 mkdir /jail
 jk_cp /jail /usr/bin/python
 jk_cp /jail /usr/lib/python*/
 jk_cp /jail /usr/lib/pymodules/python*/plasTeX/
 cp src/latex.py /jail/latex.py
 chmod a+rx /jail/latex.py
+
+# jail_latex needs to run as root to start the jailed process
+chown root ./scripts/jail_latex
+chgrp root ./scripts/jail_latex
+chmod a=rxs ./scripts/jail_latex

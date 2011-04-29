@@ -1,3 +1,0 @@
-#!/bin/bash
-dir=$(dirname $0)
-python $dir/latex.py hash
