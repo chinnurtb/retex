@@ -22,5 +22,5 @@ start(_Type, _StartArgs) ->
 %% @spec stop(_State) -> ServerRet
 %% @doc application stop callback for retex.
 stop(_State) ->
-    ok = mnesia:stop(),
+    stopped = mnesia:stop(),
     ok.
