@@ -24,7 +24,7 @@ read(Id) ->
 	[Challenge] -> {ok, Challenge}
     end.
 
--spec new(term(), list(binary())) -> #challenge{}.
+-spec new(term(), list(id())) -> #challenge{}.
 new(Source, Formulas) ->
     Id = id:new(challenge),
     Challenge = #challenge{id=Id, generated=now(), source=Source, formulas=Formulas},

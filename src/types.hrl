@@ -17,7 +17,7 @@
 	  id :: id(), % random alphanumeric id (tag is chal) eg chal0123456789abcdefeeeeeeeeeeee
 	  generated :: now(), % time when the challenge was generated eg {1303,806421,919499}
 	  source :: term(), % where the challenge is to be presented eg 'latexpert' or {'retex', <<"http://example.com/">>}
-	  formulas :: list(binary())% a list of formula ids for which the user should provide latex source code eg [f0040123456789abcdefeeeeeeeeeeee]
+	  formulas :: list(id())% a list of formula ids for which the user should provide latex source code eg [f0040123456789abcdefeeeeeeeeeeee]
 	 }).
 
 % a users response to a challenge
@@ -27,7 +27,7 @@
 	  submitted :: now(), % time when the response was submitted eg {1303,806802,868890}
 	  source :: term(), % where the challenge was presented eg 'latexpert' or {'retex', <<"http://example.com/">>}
 	  user_id :: binary(), % user id provided by the source eg <<"jamie@scattered-thoughts.net">>
-	  formulas :: list(binary()), % a list of formula ids for which the user provided latex source code eg [f0040123456789abcdefeeeeeeeeeeee]
+	  formulas :: list(id()), % a list of formula ids for which the user provided latex source code eg [f0040123456789abcdefeeeeeeeeeeee]
 	  latexs :: list(binary()), % the list of latex strings provided by the user eg [<<"$$ 1+1=2 $$">>]
 	  hashes :: list(binary()) % list of hashes of the latex strings as produced by latex:hash
 	 }).
