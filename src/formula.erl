@@ -2,7 +2,7 @@
 
 -include("types.hrl").
 
--export([start/0, read/1, new/4, random/0]).
+-export([start/0, read/1, new/4, random/0, to_json/1]).
 
 -define(RETRIES, 10).
 
@@ -53,3 +53,13 @@ random() ->
 	  ?RETRIES
 	 ),
     Formula.
+
+-spec to_json(#formula{}) -> json:json_obj().
+to_json(#formula{id=Id, url=Url, latex=Latex}) ->
+    {struct,
+     [
+      {<<"id">>, Id},
+      {<<"url">>, Url},
+      {<<"latex">>, Latex}
+     ]
+    }.

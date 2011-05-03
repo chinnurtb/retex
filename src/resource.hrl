@@ -10,8 +10,6 @@ content_types_provided(ReqData, Context) ->
 
 -type arg_spec_key() :: atom() | {atom(), fun((json:json()) -> term())}.
 
-% we expect Context to be a record whose fields may be arg_specs
-% we replace any arg_specs with the corresponding values from the json body
 from_json(ReqData, {arg_spec, Record_name, Args}) ->
     try mochijson2:decode(wrq:req_body(ReqData)) of
 	Body ->
@@ -31,4 +29,7 @@ from_json(ReqData, {arg_spec, Record_name, Args}) ->
     catch
 	_ ->
 	    {halt, 400} % bad request
-    end.
+    end;
+from_json(ReqData, _Other) ->
+    % not expecting a body
+    {true, ReqData, _Other}.

@@ -2,7 +2,7 @@
 
 -include("types.hrl").
 
--export([start/0, read/1, new/3]).
+-export([start/0, read/1, new/3, to_json/1]).
 
 -define(RETRIES, 10).
 
@@ -51,3 +51,11 @@ new(Challenge_id, User_id, Latexs) ->
 	  ?RETRIES
 	 ),
     Response.
+
+-spec to_json(#response{}) -> json:json_object().
+to_json(#response{id=Id}) ->
+    {struct,
+     [
+      {<<"id">>, Id}
+     ]
+    }.

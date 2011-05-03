@@ -2,7 +2,7 @@
 
 -include("types.hrl").
 
--export([start/0, read/1, new/2, timeout/1, responded/1]).
+-export([start/0, read/1, new/2, timeout/1, responded/1, to_json/1]).
 
 -define(TIMEOUT, 1000*60*5). % 5 minutes
 
@@ -39,3 +39,12 @@ timeout(Id) ->
 -spec responded(id()) -> ok.
 responded(Id) ->
     ok = mnesia:dirty_delete({challenge, Id}). 
+
+-spec to_json(#challenge{}) -> json:json_object().
+to_json(#challenge{id=Id, formulas=Formulas}) ->
+    {struct, 
+     [
+      {<<"id">>, Id},
+      {<<"formulas">>, Formulas}
+     ]
+    }.
