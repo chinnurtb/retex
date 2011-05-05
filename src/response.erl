@@ -13,7 +13,7 @@ start() ->
 	  [ 
 	    {attributes, record_info(fields, response)},
 	    {disc_copies, [node()]},
-	    {index, formulas}
+	    {index, [formulas]}
 	  ]
 	 ).
 
