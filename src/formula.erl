@@ -2,7 +2,7 @@
 
 -include("types.hrl").
 
--export([start/0, read/1, new/4, random/0, to_json/1]).
+-export([start/0, by_id/1, new/4, random/0, to_json/1]).
 
 -define(RETRIES, 10).
 
@@ -19,8 +19,8 @@ start() ->
     % this table maps autoincrementing ids to formula ids, so we can pick formulas at random
     ok = autoinc:start(formula_all).
 
--spec read(id()) -> {ok, #formula{}} | {error, not_found}.
-read(Id) ->
+-spec by_id(id()) -> {ok, #formula{}} | {error, not_found}.
+by_id(Id) ->
     case mnesia:dirty_read({formula, Id}) of
 	[] -> {error, not_found};
 	[Formula] -> {ok, Formula}
@@ -47,7 +47,7 @@ random() ->
 	  fun () ->
 		  {ok, Id} = autoinc:random(formula_all),
 		  % this might fail if we have deleted the formula, but will get a different choice on retry
-		  {ok, Formula} = read(Id), 
+		  {ok, Formula} = by_id(Id), 
 		  Formula
 	  end,
 	  ?RETRIES

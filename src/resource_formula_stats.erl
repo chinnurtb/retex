@@ -22,9 +22,9 @@ allowed_methods(_ReqData, _Context) ->
 
 resource_exists(ReqData, Context) -> 
     Id = wrq:path_info(id, ReqData),
-    case formula:read(Id) of
+    case formula:by_id(Id) of
 	{ok, _} ->
-	    Responses = response:by_formula(Id),
+	    Responses = response:by_formula_id(Id),
 	    {true, ReqData, #result{responses=Responses}};
 	{error, not_found} ->
 	    {false, ReqData, Context}

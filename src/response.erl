@@ -3,7 +3,7 @@
 -include("types.hrl").
 -include("util.hrl").
 
--export([start/0, read/1, by_formula/1, new/3, to_json/1]).
+-export([start/0, by_id/1, by_formula_id/1, new/3, to_json/1]).
 
 -spec start() -> ok.
 start() ->
@@ -17,15 +17,15 @@ start() ->
 	  ]
 	 ).
 
--spec read(id()) -> {ok, #response{}} | {error, not_found}.
-read(Id) ->
+-spec by_id(id()) -> {ok, #response{}} | {error, not_found}.
+by_id(Id) ->
     case mnesia:dirty_read({response, Id}) of
 	[] -> {error, not_found};
 	[Response] -> {ok, Response}
     end.
 
--spec by_formula(id()) -> list(#response{}).
-by_formula(Formula_id) ->
+-spec by_formula_id(id()) -> list(#response{}).
+by_formula_id(Formula_id) ->
     {atomic, Responses} = ?TRANS(mnesia:index_match_object(#response{formulas=[Formula_id]}, formulas)),
     Responses.
 
@@ -38,7 +38,7 @@ new(Challenge_id, User_id, Latexs) ->
 		  {ok, #challenge{
 		     generated=Generated, 
 		     source=Source, 
-		     formulas=Formulas}} = challenge:read(Challenge_id),
+		     formulas=Formulas}} = challenge:by_id(Challenge_id),
 		  Response = #response{
 		    id=Id,
 		    generated=Generated,

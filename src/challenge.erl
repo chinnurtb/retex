@@ -2,7 +2,7 @@
 
 -include("types.hrl").
 
--export([start/0, read/1, new/2, timeout/1, responded/1, to_json/1]).
+-export([start/0, by_id/1, new/2, timeout/1, responded/1, to_json/1]).
 
 -define(TIMEOUT, 1000*60*5). % 5 minutes
 
@@ -17,8 +17,8 @@ start() ->
 	  ]
 	 ).
 
--spec read(id()) -> {ok, #challenge{}} | {error, not_found}.
-read(Id) ->
+-spec by_id(id()) -> {ok, #challenge{}} | {error, not_found}.
+by_id(Id) ->
     case mnesia:dirty_read({challenge, Id}) of
 	[] -> {error, not_found};
 	[Challenge] -> {ok, Challenge}
