@@ -20,13 +20,13 @@
 	 }).
 
 init(Module) ->
-    {ok, Module}.
+    {ok, #conf{module=Module}}.
 
-allowed_methods(_ReqData, _Context) ->
-    ['GET'].
+allowed_methods(ReqData, Context) ->
+    {['GET'], ReqData, Context}.
 
 resource_exists(ReqData, #conf{module=Module}=Conf) -> 
-    Id = wrq:path_info(id, ReqData),
+    Id = list_to_binary(wrq:path_info(id, ReqData)),
     case Module:by_id(Id) of
 	{ok, Item} ->
 	    {true, ReqData, #result{module=Module, item=Item}};

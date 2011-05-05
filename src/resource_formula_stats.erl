@@ -21,7 +21,7 @@ allowed_methods(_ReqData, _Context) ->
     ['GET'].
 
 resource_exists(ReqData, Context) -> 
-    Id = wrq:path_info(id, ReqData),
+    Id = list_to_binary(wrq:path_info(id, ReqData)),
     case formula:by_id(Id) of
 	{ok, _} ->
 	    Responses = response:by_formula_id(Id),
