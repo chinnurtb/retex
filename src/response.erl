@@ -1,10 +1,9 @@
 -module(response).
 
 -include("types.hrl").
+-include("util.hrl").
 
--export([start/0, read/1, new/3, to_json/1]).
-
--define(RETRIES, 10).
+-export([start/0, read/1, by_formula/1, new/3, to_json/1]).
 
 -spec start() -> ok.
 start() ->
@@ -13,7 +12,8 @@ start() ->
 	  response,
 	  [ 
 	    {attributes, record_info(fields, response)},
-	    {disc_copies, [node()]} 
+	    {disc_copies, [node()]},
+	    {index, formulas}
 	  ]
 	 ).
 
@@ -23,6 +23,11 @@ read(Id) ->
 	[] -> {error, not_found};
 	[Response] -> {ok, Response}
     end.
+
+-spec by_formula(id()) -> list(#response{}).
+by_formula(Formula_id) ->
+    {atomic, Responses} = ?TRANS(mnesia:index_match_object(#response{formulas=[Formula_id]}, formulas)),
+    Responses.
 
 -spec new(id(), binary(), list(binary())) -> #response{}.
 new(Challenge_id, User_id, Latexs) ->
