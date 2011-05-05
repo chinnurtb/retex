@@ -31,8 +31,8 @@ init([]) ->
 	},
     {ok, Arg_spec}.
 
-allowed_methods(_ReqData, _Context) ->
-    ['POST'].
+allowed_methods(ReqData, Context) ->
+    {['POST'], ReqData, Context}.
 
 post_is_create(ReqData, Context) ->
     {true, ReqData, Context}.
@@ -40,7 +40,7 @@ post_is_create(ReqData, Context) ->
 create_path(ReqData, #request{challenge=Challenge, user=User, latexs=Latexs}) ->
     #response{id = Id} = Response = response:new(Challenge, User, Latexs),
     Result = #result{response=Response},
-    {Id, ReqData, Result}.
+    {binary_to_list(Id), ReqData, Result}.
 
 to_json(Reqdata, #result{response=Response}=Result) ->
     Json = response:to_json(Response),

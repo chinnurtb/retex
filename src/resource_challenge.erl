@@ -25,10 +25,10 @@ init([]) ->
 	  {source, fun (Json) when is_binary(Json) -> Json end}
 	 ]
 	},
-    {ok, Arg_spec}.
+    {{trace, "/tmp"}, Arg_spec}.
 
-allowed_methods(_ReqData, _Context) ->
-    ['POST'].
+allowed_methods(ReqData, Context) ->
+    {['POST'], ReqData, Context}.
 
 post_is_create(ReqData, Context) ->
     {true, ReqData, Context}.
@@ -37,7 +37,7 @@ create_path(ReqData, #request{source=Source}) ->
     #formula{id=Formula_id} = formula:random(),
     #challenge{id=Id} = Challenge = challenge:new({single, Source}, [Formula_id]),
     Result = #result{challenge=Challenge},
-    {Id, ReqData, Result}.
+    {binary_to_list(Id), ReqData, Result}.
 
 to_json(Reqdata, #result{challenge=Challenge}=Result) ->
     Json = challenge:to_json(Challenge),

@@ -184,7 +184,8 @@ prop_post_challenges() ->
 				   )
 			  end,
 			  Sources
-			 )
+			 ),
+			true
 		    end
 		   )
 	    ).
