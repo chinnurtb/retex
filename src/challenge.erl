@@ -1,6 +1,7 @@
 -module(challenge).
 
 -include("types.hrl").
+-include("util.hrl").
 
 -export([start/0, by_id/1, new/2, timeout/1, responded/1, to_json/1]).
 
@@ -19,9 +20,9 @@ start() ->
 
 -spec by_id(id()) -> {ok, #challenge{}} | {error, not_found}.
 by_id(Id) ->
-    case mnesia:dirty_read({challenge, Id}) of
-	[] -> {error, not_found};
-	[Challenge] -> {ok, Challenge}
+    case ?TRANS(mnesia:read({challenge, Id})) of
+	{atomic, []} -> {error, not_found};
+	{atomic, [Challenge]} -> {ok, Challenge}
     end.
 
 -spec new(term(), list(id())) -> #challenge{}.
@@ -29,7 +30,7 @@ new(Source, Formulas) ->
     Id = id:new(challenge),
     Challenge = #challenge{id=Id, generated=now(), source=Source, formulas=Formulas},
     {ok, _} = timer:apply_after(?TIMEOUT, challenge, timeout, [Id]),
-    ok = mnesia:dirty_write(Challenge),
+    {atomic, ok} = ?TRANS(mnesia:write(Challenge)),
     Challenge.
 
 -spec timeout(id()) -> ok.
@@ -38,7 +39,8 @@ timeout(Id) ->
 
 -spec responded(id()) -> ok.
 responded(Id) ->
-    ok = mnesia:dirty_delete({challenge, Id}). 
+    {atomic, ok} = ?TRANS(mnesia:delete({challenge, Id})),
+    ok. 
 
 -spec to_json(#challenge{}) -> json:json_object().
 to_json(#challenge{id=Id, formulas=Formulas}) ->

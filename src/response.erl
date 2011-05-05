@@ -19,9 +19,9 @@ start() ->
 
 -spec by_id(id()) -> {ok, #response{}} | {error, not_found}.
 by_id(Id) ->
-    case mnesia:dirty_read({response, Id}) of
-	[] -> {error, not_found};
-	[Response] -> {ok, Response}
+    case ?TRANS(mnesia:read({response, Id})) of
+	{atomic, []} -> {error, not_found};
+	{atomic, [Response]} -> {ok, Response}
     end.
 
 -spec by_formula_id(id()) -> list(#response{}).

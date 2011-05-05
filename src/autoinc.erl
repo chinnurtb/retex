@@ -2,10 +2,9 @@
 -module(autoinc).
 
 -include("types.hrl").
+-include("util.hrl").
 
 -export([start/1, put/2, get/2, random/1]).
-
--define(RETRIES, 10).
 
 -type key() :: integer() | next. % 'next' is the next id to be assigned
 -type value() :: id() | integer(). % the value pointed to (or next key if key is 'next'
@@ -66,9 +65,9 @@ put(Table, Id) ->
 
 -spec get(atom(), integer()) -> {error, not_found} | {ok, id()}.
 get(Table, Key) ->
-    case mnesia:dirty_read({Table, Key}) of
-	[] -> {error, not_found};
-	[#pointer{value=Value}] -> {ok, Value}
+    case ?TRANS(mnesia:read({Table, Key})) of
+	{atomic, []} -> {error, not_found};
+	{atomic, [#pointer{value=Value}]} -> {ok, Value}
     end.
 
 -spec random(atom()) -> none | {ok, id()}.

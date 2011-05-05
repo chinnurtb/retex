@@ -1,10 +1,9 @@
 -module(formula).
 
 -include("types.hrl").
+-include("util.hrl").
 
 -export([start/0, by_id/1, new/4, random/0, to_json/1]).
-
--define(RETRIES, 10).
 
 -spec start() -> ok.
 start() ->
@@ -21,9 +20,9 @@ start() ->
 
 -spec by_id(id()) -> {ok, #formula{}} | {error, not_found}.
 by_id(Id) ->
-    case mnesia:dirty_read({formula, Id}) of
-	[] -> {error, not_found};
-	[Formula] -> {ok, Formula}
+    case ?TRANS(mnesia:read({formula, Id})) of
+	{atomic, []} -> {error, not_found};
+	{atomic, [Formula]} -> {ok, Formula}
     end.
 
 -spec new(binary(), binary(), binary(), binary()) -> #formula{}.
