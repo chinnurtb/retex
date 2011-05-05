@@ -11,6 +11,7 @@
 	  url :: binary(), % url at which the formula image can be found eg <<"/images/f0040123456789abcdefeeeeeeeeeeee">>
 	  latex :: binary() % either 'none' or the formula's latex source code eg <<"$$ 1+1=2 $$">>
 	 }).
+-type formula() :: #formula{}.
 
 % a challenge submitted to a user
 -record(challenge, {
@@ -19,6 +20,7 @@
 	  source :: term(), % where the challenge is to be presented eg 'latexpert' or {'retex', <<"http://example.com/">>}
 	  formulas :: list(id())% a list of formula ids for which the user should provide latex source code eg [f0040123456789abcdefeeeeeeeeeeee]
 	 }).
+-type challenge() :: #challenge{}.
 
 % a users response to a challenge
 -record(response, {
@@ -31,3 +33,4 @@
 	  latexs :: list(binary()), % the list of latex strings provided by the user eg [<<"$$ 1+1=2 $$">>]
 	  hashes :: list(binary()) % list of hashes of the latex strings as produced by latex:hash
 	 }).
+-type response() :: #response{}.
