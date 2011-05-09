@@ -1,9 +1,10 @@
+
 -module(formula).
 
 -include("types.hrl").
 -include("util.hrl").
 
--export([start/0, by_id/1, new/4, random/0, to_json/1]).
+-export([start/0, by_id/1, new/4, new/5, random/0, to_json/1]).
 
 -spec start() -> ok.
 start() ->
@@ -28,6 +29,10 @@ by_id(Id) ->
 -spec new(binary(), binary(), binary(), binary()) -> #formula{}.
 new(Source, Source_id, Url, Latex) ->
     Id = id:new(formula),
+    new(Id, Source, Source_id, Url, Latex).
+
+-spec new(id(), binary(), binary(), binary(), binary()) -> #formula{}.
+new(Id, Source, Source_id, Url, Latex) ->
     Formula = #formula{id=Id, source=Source, source_id=Source_id, url=Url, latex=Latex},
     {atomic, _} = 
 	mnesia:transaction(

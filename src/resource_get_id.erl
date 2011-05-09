@@ -3,12 +3,10 @@
 -module(resource_get_id).
 
 % webmachine callbacks
--export([init/1, allowed_methods/2, resource_exists/2, to_json/2]).
--export([content_types_accepted/2, content_types_provided/2, from_json/2]). % defined in resource.hrl
+-export([init/1, allowed_methods/2, resource_exists/2,  content_types_provided/2, to_json/2]).
 
 -include_lib("webmachine/include/webmachine.hrl").
 -include("types.hrl").
--include("resource.hrl"). % magic happens in here! defines default callbacks and arg_spec()
 
 -record(conf, {
 	  module :: atom()
@@ -33,6 +31,9 @@ resource_exists(ReqData, #conf{module=Module}=Conf) ->
 	{error, not_found} ->
 	    {false, ReqData, Conf}
     end.
+
+content_types_provided(ReqData, Context) ->
+   {[{"application/json", to_json}], ReqData, Context}.
 
 to_json(Reqdata, #result{module=Module, item=Item}=Result) ->
     Json = Module:to_json(Item),

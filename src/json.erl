@@ -3,6 +3,7 @@
 -module(json).
 
 -export([get/2, set/3, update/4]).
+-export([decode_request_body/2]).
 
 -type json_string() :: atom | binary().
 -type json_number() :: integer() | float().
@@ -76,3 +77,28 @@ set_nth(1, [_Head | Tail], Value) ->
     [Value | Tail];
 set_nth(N, [Head | Tail], Value) when N>1 ->
     [Head | set_nth(N-1, Tail, Value)].
+
+% decoding json body
+
+-type decoder_arg() :: atom() | {atom(), fun((json:json()) -> term())}.
+
+-spec decode_request_body(wrq:rd(), list(decoder_arg())) -> {ok, list(term())} | {error, term()}.
+decode_request_body(ReqData, Args) ->
+    try mochijson2:decode(wrq:req_body(ReqData)) of
+	Body ->
+	    Values = 
+		lists:map(
+		  fun ({Key, Decoder}) ->
+			  {ok, Value} = json:get(Key, Body),
+			  Decoder(Value);
+		      (Key) ->
+			  {ok, Value} = json:get(Key, Body),
+			  Value
+		  end,
+		  Args
+		 ),
+	    {ok, Values}
+    catch
+	_:Error ->
+	    {error, Error}
+    end.

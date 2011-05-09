@@ -3,7 +3,7 @@
 -include("types.hrl").
 -include("util.hrl").
 
--export([start/0, by_id/1, new/2, timeout/1, responded/1, to_json/1]).
+-export([start/0, by_id/1, new/2, new/3, timeout/1, responded/1, to_json/1]).
 
 -define(TIMEOUT, 1000*60*5). % 5 minutes
 
@@ -28,6 +28,10 @@ by_id(Id) ->
 -spec new(term(), list(id())) -> #challenge{}.
 new(Source, Formulas) ->
     Id = id:new(challenge),
+    new(Id, Source, Formulas).
+
+-spec new(id(), term(), list(id())) -> #challenge{}.
+new(Id, Source, Formulas) ->
     Challenge = #challenge{id=Id, generated=now(), source=Source, formulas=Formulas},
     {ok, _} = timer:apply_after(?TIMEOUT, challenge, timeout, [Id]),
     {atomic, ok} = ?TRANS(mnesia:write(Challenge)),

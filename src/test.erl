@@ -31,7 +31,7 @@ alphanumeric() ->
     oneof("abcdefghijklmnopqrstuvwxyz0123456789").
 
 id() ->
-    ?LET({Type, Suffix}, {id_type(), vector(28, alphanumeric)},
+    ?LET({Type, Suffix}, {id_type(), vector(28, alphanumeric())},
 	 begin
 	     Prefix = 
 		 case Type of
