@@ -21,14 +21,15 @@
 
 % --- generators ---
 
+alphanumeric() ->
+    oneof("abcdefghijklmnopqrstuvwxyz0123456789").
+
 printable() ->
-    ?LET(String, string(), mochijson2:decode(mochijson2:encode(String))).
+    % !!! want to do proper unicode here
+    ?LET(String, list(alphanumeric()), list_to_binary(String)).
 
 id_type() ->
     oneof([formula, challenge, response]).
-
-alphanumeric() ->
-    oneof("abcdefghijklmnopqrstuvwxyz0123456789").
 
 id() ->
     ?LET({Type, Suffix}, {id_type(), vector(28, alphanumeric())},
@@ -160,9 +161,9 @@ prop_get_formula() ->
 	    end
 	   ).
 
-prop_post_challenges() ->
+prop_post_challenge() ->
     ?FORALL(Formula_args, non_empty(list(formula_arg())),
-	    ?FORALL(Sources, list(printable()),
+	    ?FORALL(Source, printable(),
 		    begin
 			clean(),
 			lists:foreach(
@@ -171,19 +172,14 @@ prop_post_challenges() ->
 			  end,
 			  Formula_args
 			 ),
+			{201, Json} = post_challenge(Source),
+			[Id, Formulas] = json_gets(Json, [id, formulas]),
+			{200, Json} = get_challenge(Id),
 			lists:foreach(
-			  fun (Source) ->
-				  {201, Json} = post_challenge(Source),
-				  [Id, Formulas] = json_gets(Json, [id, formulas]),
-				  {200, Json} = get_challenge(Id),
-				  lists:foreach(
-				    fun (Formula) ->
-					    {200, _Json2} = get_formula(Formula)
-				    end,
-				    Formulas
-				   )
+			  fun (Formula) ->
+				  {200, _Json2} = get_formula(Formula)
 			  end,
-			  Sources
+			  Formulas
 			 ),
 			true
 		    end
