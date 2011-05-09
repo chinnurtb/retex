@@ -106,8 +106,14 @@ get_formula(Id) ->
 get_challenge(Id) ->
     http_get(["challenge", binary_to_list(Id)]).
 
+get_response(Id) ->
+    http_get(["response", binary_to_list(Id)]).
+
 post_challenge(Source) ->
     http_post(["challenge"], [{<<"source">>, Source}]).
+
+post_response(Challenge_id, User, Latexs) ->
+    http_post(["response"], [{<<"challenge">>, Challenge_id}, {<<"user">>, User}, {<<"latexs">>, Latexs}]).
 
 json_gets(Json, Paths) ->
     lists:map(
@@ -185,7 +191,29 @@ prop_post_challenge() ->
 		    end
 		   )
 	    ).
-		
+
+prop_post_response() ->
+    ?FORALL(Formula_args, non_empty(list(formula_arg())),
+	    ?FORALL(Source, printable(),
+		    ?FORALL([User, Latexs], [printable(), list(latex())],
+			    begin
+				clean(),
+				lists:foreach(
+				  fun (Formula_arg) ->
+					  apply(formula, new, Formula_arg)
+				  end,
+				  Formula_args
+				 ),
+				{201, Json} = post_challenge(Source),
+				[Challenge_id, _Formulas] = json_gets(Json, [id, formulas]),
+				{201, Json2} = post_response(Challenge_id, User, Latexs),
+				{ok, Id} = json:get(Json2, id),
+				{200, Json2} = get_response(Id),
+				true
+			    end
+			   )
+		   )
+	   ).
 
 % --- api ---
 
