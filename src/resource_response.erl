@@ -38,11 +38,12 @@ from_json(ReqData, _Context) ->
 
 finish_request(ReqData, Response) ->
     ReqData2 = wrq:set_resp_header("Content-Type", "application/json", ReqData),
-    Json = challenge:to_json(Response),
+    Json = response:to_json(Response),
     ReqData3 = wrq:set_resp_body(mochijson2:encode(Json), ReqData2),
     {true, ReqData3, Response}.
 
 % --- internal functions ---
 
 is_latexs(Latexs) when is_list(Latexs) ->
-    true = lists:all(fun is_binary/1, Latexs).
+    true = lists:all(fun is_binary/1, Latexs),
+    Latexs.
