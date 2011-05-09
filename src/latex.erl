@@ -13,7 +13,12 @@ interact(Command, Request) when is_list(Command) and is_binary(Request) ->
 	    1000 -> erlang:error('latex.timeout')
 	end
     after
-	port_close(Port)
+	try
+	    port_close(Port)
+	catch
+	    error:badarg ->
+		ok
+	end
     end.
 
 -spec ast(binary()) -> Ast :: binary().
