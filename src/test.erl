@@ -79,7 +79,7 @@ path_to_url([Elem|Path], Acc) ->
     path_to_url(Path, [Acc, "/", Elem]).
 	      
 http_post(Path, Args) ->
-    Body = mochijson2:encode({struct, Args}),
+    Body = iolist_to_binary(mochijson2:encode({struct, Args})),
     {ok, {Code, Result}} = 
 	httpc:request(
 	  post, 
