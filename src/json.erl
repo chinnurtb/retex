@@ -84,20 +84,20 @@ set_nth(N, [Head | Tail], Value) when N>1 ->
 
 -spec decode_request_body(wrq:rd(), list(decoder_arg())) -> {ok, list(term())} | {error, term()}.
 decode_request_body(ReqData, Args) ->
-    try mochijson2:decode(wrq:req_body(ReqData)) of
-	Body ->
-	    Values = 
-		lists:map(
-		  fun ({Key, Decoder}) ->
-			  {ok, Value} = json:get(Key, Body),
-			  Decoder(Value);
-		      (Key) ->
-			  {ok, Value} = json:get(Key, Body),
-			  Value
-		  end,
-		  Args
-		 ),
-	    {ok, Values}
+    try 
+	Body = mochijson2:decode(wrq:req_body(ReqData)),
+	Values = 
+	    lists:map(
+	      fun ({Key, Decoder}) ->
+		      {ok, Value} = json:get(Body, Key),
+		      Decoder(Value);
+		  (Key) ->
+		      {ok, Value} = json:get(Body, Key),
+		      Value
+	      end,
+	      Args
+	     ),
+	{ok, Values}
     catch
 	_:Error ->
 	    {error, Error}
