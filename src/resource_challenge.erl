@@ -31,7 +31,7 @@ from_json(ReqData, _Context) ->
     #formula{id=Formula_id} = formula:random(),
     case json:decode_request_body(ReqData, [source]) of
 	{ok, [Source]} when is_binary(Source) ->
-	    Challenge = challenge:new(Id, {single, Source}, [Formula_id]),
+	    Challenge = challenge:new(Id, {retex, Source}, [Formula_id]),
 	    {true, ReqData, Challenge};
 	{error, _Error} ->
 	    {halt, 400} % bad request
