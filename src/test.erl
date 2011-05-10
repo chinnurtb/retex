@@ -109,6 +109,9 @@ get_challenge(Id) ->
 get_response(Id) ->
     http_get(["response", binary_to_list(Id)]).
 
+get_formula_stats(Id) ->
+    http_get(["formula", binary_to_list(Id), "stats"]).
+
 post_challenge(Source) ->
     http_post(["challenge"], [{<<"source">>, Source}]).
 
@@ -167,17 +170,20 @@ prop_get_formula() ->
 	    end
 	   ).
 
+create_formulas(Formula_args) ->
+    lists:foreach(
+      fun (Formula_arg) ->
+	      apply(formula, new, Formula_arg)
+      end,
+      Formula_args
+     ).
+
 prop_post_challenge() ->
     ?FORALL(Formula_args, non_empty(list(formula_arg())),
 	    ?FORALL(Source, printable(),
 		    begin
 			clean(),
-			lists:foreach(
-			  fun (Formula_arg) ->
-				  apply(formula, new, Formula_arg)
-			  end,
-			  Formula_args
-			 ),
+			create_formulas(Formula_args),
 			{201, Json} = post_challenge(Source),
 			[Id, Formulas] = json_gets(Json, [id, formulas]),
 			{200, Json} = get_challenge(Id),
@@ -192,23 +198,46 @@ prop_post_challenge() ->
 		   )
 	    ).
 
+challenge_response(Source, User, Latexs) ->
+    {201, Json} = post_challenge(Source),
+    [Challenge_id, Formulas] = json_gets(Json, [id, formulas]),
+    {201, Json2} = post_response(Challenge_id, User, Latexs),
+    {Formulas, Json2}.
+
 prop_post_response() ->
     ?FORALL(Formula_args, non_empty(list(formula_arg())),
 	    ?FORALL(Source, printable(),
-		    ?FORALL([User, Latexs], [printable(), list(latex())],
+		    ?FORALL([User, Latexs], [printable(), vector(1, latex())],
 			    begin
 				clean(),
-				lists:foreach(
-				  fun (Formula_arg) ->
-					  apply(formula, new, Formula_arg)
-				  end,
-				  Formula_args
-				 ),
-				{201, Json} = post_challenge(Source),
-				[Challenge_id, _Formulas] = json_gets(Json, [id, formulas]),
-				{201, Json2} = post_response(Challenge_id, User, Latexs),
-				{ok, Id} = json:get(Json2, id),
-				{200, Json2} = get_response(Id),
+				create_formulas(Formula_args),
+				{_, Json} = challenge_response(Source, User, Latexs),
+				{ok, Id} = json:get(Json, id),
+				{200, Json} = get_response(Id),
+				true
+			    end
+			   )
+		   )
+	   ).
+
+check_stats(Formulas, Latexs, Number) ->
+    lists:foreach(
+      fun ({Formula, Latex}) ->
+	      {200, Json} = get_formula_stats(Formula),
+	      {ok, Number} = json:get(Json, [responses, Latex])
+      end,
+      lists:zip(Formulas, Latexs)
+     ).
+
+prop_get_formula_stats() ->
+    ?FORALL(Formula_args, non_empty(list(formula_arg())),
+	    ?FORALL(Source, printable(),
+		    ?FORALL([User, Latexs], [printable(), vector(1, latex())],
+			    begin
+				clean(),
+				create_formulas(Formula_args),
+				{Formulas, _} = challenge_response(Source, User, Latexs),
+				check_stats(Formulas, Latexs, 1),
 				true
 			    end
 			   )
