@@ -1,9 +1,11 @@
 #!/bin/bash
 
-ulimit -f 0 # no writing files (max file size 0 kb)
-ulimit -m 64000 # max ~64 mb RAM 
-ulimit -v 64000 # max ~64 mb virtual memory
-ulimit -t 1 # max 1 second cpu time
-ulimit -u 100 # max 1 processes at any one time
+#ulimit -f 0 # no writing files (max file size 0 kb)
+#ulimit -m 64000 # max ~64 mb RAM 
+#ulimit -v 64000 # max ~64 mb virtual memory
+#ulimit -t 1 # max 1 second cpu time
+#ulimit -u 100 # max 100 processes at any one time
 
-jk_chrootlaunch -u jail -g jail -j /jail -x /jail/latex.py -- $1
+#jk_chrootlaunch -u jail -g jail -j /jail -x /jail/latex.py -- $1
+
+python src/latex.py $1
