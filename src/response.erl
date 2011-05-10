@@ -26,7 +26,7 @@ by_id(Id) ->
 
 -spec by_formula_id(id()) -> list(#response{}).
 by_formula_id(Formula_id) ->
-    {atomic, Responses} = ?TRANS(mnesia:index_match_object(#response{formulas=[Formula_id]}, formulas)),
+    {atomic, Responses} = ?TRANS(mnesia:index_match_object(#response{formulas=[Formula_id], _ ='_'}, formulas)),
     Responses.
 
 -spec new(id(), binary(), list(binary())) -> #response{}.

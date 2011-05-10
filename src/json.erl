@@ -41,7 +41,7 @@ get(_Json, _Path) ->
 
 -spec get_list(json(), list(path())) -> json().
 get_list(Json, []) ->
-    Json;
+    {ok, Json};
 get_list(Json, [Tuple_elem | Tuple]) ->
     case get(Json, Tuple_elem) of
 	{error, not_found} -> {error, not_found};

@@ -11,8 +11,8 @@
 init([]) ->
     {ok, none}.
 
-allowed_methods(_ReqData, _Context) ->
-    ['GET'].
+allowed_methods(ReqData, Context) ->
+    {['GET'], ReqData, Context}.
 
 resource_exists(ReqData, Context) -> 
     Id = list_to_binary(wrq:path_info(id, ReqData)),
@@ -31,7 +31,7 @@ to_json(Reqdata, Responses) ->
     Json = 
 	{struct,
 	 [
-	  {<<"responses">>, group_by_hash(Responses)}
+	  {<<"responses">>, {struct, group_by_hash(Responses)}}
 	 ]
 	},
     {mochijson2:encode(Json), Reqdata, Responses}.
@@ -49,5 +49,5 @@ group_by_hash(Responses) ->
 	  dict:new(),
 	  Pairs
 	 ),
-    dict:to_list(Dict).
+    [Stats || {_Hash, Stats} <- dict:to_list(Dict)].
 

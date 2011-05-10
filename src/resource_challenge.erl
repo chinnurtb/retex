@@ -9,7 +9,7 @@
 -include("types.hrl").
 
 init([]) ->
-    {{trace, "/tmp"}, none}.
+    {ok, none}.
 
 allowed_methods(ReqData, Context) ->
     {['POST'], ReqData, Context}.
