@@ -3,7 +3,7 @@
 -include("types.hrl").
 -include("util.hrl").
 
--export([start/0, by_id/1, new/4, new/5, random/0, to_json/1, from_image/2, from_images/2]).
+-export([start/0, by_id/1, new/4, new/5, random/0, to_json/1, from_image/1, from_images/1]).
 
 -spec start() -> ok.
 start() ->
@@ -68,25 +68,26 @@ to_json(#formula{id=Id, url=Url, latex=Latex}) ->
      ]
     }.
 
--spec from_image(string(), string()) -> #formula{}.
-from_image(Filename, Extension) ->
+-spec from_image(string()) -> #formula{}.
+from_image(Filename) ->
     Id = id:new(formula),
     Source = <<"springer">>,
     Source_id = list_to_binary(Filename), % !!! would prefer a proper id
+    Extension = filename:extension(Filename),
     Bin_extension = list_to_binary(Extension),
     Url = << "image/", Id/binary, Bin_extension/binary >>,
     Latex = none,
     ok = file:rename(Filename, "./priv/www/image/" ++ binary_to_list(Id) ++ Extension),
     new(Id, Source, Source_id, Url, Latex).
 
--spec from_images(string(), string()) -> list(#formula{}).
-from_images(Folder, Extension) ->
+-spec from_images(string()) -> list(#formula{}).
+from_images(Folder) ->
     filelib:fold_files(
       Folder,
-      ".*" ++ Extension,
+      ".*",
       true,
       fun (Filename, Formulas) ->
-	      [from_image(Filename, Extension) | Formulas]
+	      [from_image(Filename) | Formulas]
       end,
       []
      ).

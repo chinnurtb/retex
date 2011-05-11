@@ -4,13 +4,10 @@
 
 main(Args) ->
     case Args of
-	["upload", Dir | Extensions] ->
-	    lists:foreach(
-	      fun (Extension) ->
-		      call(formula, from_images, [Dir, Extension])
-	      end,
-	      Extensions
-	     )
+	["stop"] ->
+	    call(init, stop, []);
+	["upload", Dir] ->
+	    call(formula, from_images, [Dir])
     end.
 
 call(Mod, Fun, Args) ->
