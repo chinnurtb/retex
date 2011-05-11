@@ -1,0 +1,21 @@
+#!/usr/bin/env escript
+%% -*- erlang -*-
+%%! -sname retex_control -hidden
+
+main(Args) ->
+    case Args of
+	["upload", Dir | Extensions] ->
+	    lists:foreach(
+	      fun (Extension) ->
+		      call(formula, from_images, [Dir, Extension])
+	      end,
+	      Extensions
+	     )
+    end.
+
+call(Mod, Fun, Args) ->
+    {ok, Host} = inet:gethostname(),
+    Retex = list_to_atom("retex@" ++ Host),
+    Result = rpc:call(Retex, Mod, Fun, Args),
+    io:format("~p~n", [Result]).
+
