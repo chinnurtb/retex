@@ -34,7 +34,7 @@ start(Table) ->
 	    {disc_copies, [node()]} 
 	  ]
 	 ),
-    mnesia:wait_for_tables([Table], 1000),
+    mnesia:wait_for_tables([Table], infinity),
     {atomic, ok} =
 	mnesia:transaction(
 	  fun () ->
