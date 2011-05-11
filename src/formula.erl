@@ -34,7 +34,8 @@ new(Source, Source_id, Url, Latex) ->
 new(Id, Source, Source_id, Url, Latex) ->
     Formula = #formula{id=Id, source=Source, source_id=Source_id, url=Url, latex=Latex},
     {atomic, _} = 
-	mnesia:transaction(
+	% use sync_transaction to slow writes, otherwise large imports overload mnesia
+	mnesia:sync_transaction(
 	  fun () ->
 		  ok = mnesia:write(Formula),
 		  autoinc:put(formula_all, Id)
