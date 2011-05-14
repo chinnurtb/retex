@@ -11,7 +11,9 @@ main(Args) ->
 	["backup", Filename] ->
 	    call(db, backup, [Filename]);
 	["restore", Filename] ->
-	    call(db, restore, [Filename])
+	    call(db, restore, [Filename]);
+	_ ->
+	    usage()
     end.
 
 call(Mod, Fun, Args) ->
@@ -20,3 +22,10 @@ call(Mod, Fun, Args) ->
     Result = rpc:call(Retex, Mod, Fun, Args),
     io:format("~p~n", [Result]).
 
+usage() ->
+    io:format("Usage:\n"),
+    io:format("\t./control stop\n"),
+    io:format("\t./control upload /some/dir/full/of/images\n"),
+    io:format("\t./control backup /offsite/my_backup\n"),
+    io:format("\t./control restore /offsite/my_backup\n").
+    
