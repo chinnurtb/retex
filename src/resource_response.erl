@@ -26,14 +26,14 @@ create_path(ReqData, Context) ->
 content_types_accepted(ReqData, Context) ->
    {[{"application/json", from_json}], ReqData, Context}.
 
-from_json(ReqData, _Context) ->
+from_json(ReqData, Context) ->
     Id = list_to_binary(wrq:disp_path(ReqData)),
     case json:decode_request_body(ReqData, [challenge, user, {latexs, fun is_latexs/1}]) of
 	{ok, [Challenge, User, Latexs]} when is_binary(Challenge), is_binary(User) ->
 	    Response = response:new(Id, Challenge, User, Latexs),
 	    {true, ReqData, Response};
 	{error, _Error} ->
-	    {halt, 400} % bad request
+	    {{halt, 400}, ReqData, Context} % bad request
     end.
 
 finish_request(ReqData, Response) ->

@@ -26,7 +26,7 @@ create_path(ReqData, Context) ->
 content_types_accepted(ReqData, Context) ->
    {[{"application/json", from_json}], ReqData, Context}.
 
-from_json(ReqData, _Context) ->
+from_json(ReqData, Context) ->
     Id = list_to_binary(wrq:disp_path(ReqData)),
     #formula{id=Formula_id} = formula:random(),
     case json:decode_request_body(ReqData, [source]) of
@@ -34,7 +34,7 @@ from_json(ReqData, _Context) ->
 	    Challenge = challenge:new(Id, {retex, Source}, [Formula_id]),
 	    {true, ReqData, Challenge};
 	{error, _Error} ->
-	    {halt, 400} % bad request
+	    {{halt, 400}, ReqData, Context} % bad request
     end.
 
 finish_request(ReqData, Challenge) ->
