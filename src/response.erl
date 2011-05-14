@@ -2,6 +2,7 @@
 
 -include("types.hrl").
 -include("util.hrl").
+-include("log.hrl").
 
 -export([start/0, by_id/1, by_formula_id/1, new/3, new/4, to_json/1]).
 
@@ -36,6 +37,7 @@ new(Challenge_id, User_id, Latexs) ->
 
 -spec new(id(), id(), binary(), list(binary())) -> #response{}.
 new(Id, Challenge_id, User_id, Latexs) ->
+    ?INFO([new, ?VAR(Id), ?VAR(Challenge_id), ?VAR(User_id), ?VAR(Latexs)]),
     {atomic, Response} =
 	mnesia:transaction(
 	  fun () ->

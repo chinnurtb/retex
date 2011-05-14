@@ -2,6 +2,8 @@
 
 -export([ensure_schema/0, ensure_table/2, backup/1, restore/1]).
 
+-include("log.hrl").
+
 -spec ensure_schema() -> ok | {error, Reason :: term()}.
 ensure_schema() ->
     case mnesia:create_schema([node()]) of
@@ -26,8 +28,13 @@ ensure_table(Name, Tab_def) ->
 
 -spec backup(string()) -> ok | {error, Reason :: term()}.
 backup(Filename) ->
-    mnesia:backup(Filename).
+    Result = mnesia:backup(Filename),
+    ?INFO([backup, ?VAR(Filename), ?VAR(Result)]),
+    Result.
 
 -spec restore(string()) -> {atomic, Tables :: list(atom())} | {aborted, Reason :: term()}.
 restore(Filename) ->
-    mnesia:restore(Filename, [{default_op, recreate_tables}]).
+    Result = mnesia:restore(Filename, [{default_op, recreate_tables}]),
+    ?INFO([restore, ?VAR(Filename), ?VAR(Result)]),
+    Result.
+    

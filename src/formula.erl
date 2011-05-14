@@ -2,6 +2,7 @@
 
 -include("types.hrl").
 -include("util.hrl").
+-include("log.hrl").
 
 -export([start/0, by_id/1, new/4, new/5, random/0, to_json/1, from_image/1, from_images/1]).
 
@@ -32,6 +33,7 @@ new(Source, Source_id, Url, Latex) ->
 
 -spec new(id(), binary(), binary(), binary(), binary()) -> #formula{}.
 new(Id, Source, Source_id, Url, Latex) ->
+    ?INFO([formula, new, ?VAR(Id), ?VAR(Source), ?VAR(Source_id), ?VAR(Url), ?VAR(Latex)]),
     Formula = #formula{id=Id, source=Source, source_id=Source_id, url=Url, latex=Latex},
     {atomic, _} = 
 	% use sync_transaction to slow writes, otherwise large imports overload mnesia
@@ -70,6 +72,7 @@ to_json(#formula{id=Id, url=Url, latex=Latex}) ->
 
 -spec from_image(string()) -> #formula{}.
 from_image(Filename) ->
+    ?INFO([from_image, ?VAR(Filename)]),
     Id = id:new(formula),
     Source = <<"springer">>,
     Source_id = list_to_binary(Filename), % !!! would prefer a proper id
@@ -82,6 +85,7 @@ from_image(Filename) ->
 
 -spec from_images(string()) -> list(#formula{}).
 from_images(Folder) ->
+    ?INFO([from_images, ?VAR(Folder)]), 
     filelib:fold_files(
       Folder,
       ".*",

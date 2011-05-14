@@ -2,6 +2,7 @@
 
 -include("types.hrl").
 -include("util.hrl").
+-include("log.hrl").
 
 -export([start/0, by_id/1, new/2, new/3, timeout/1, responded/1, to_json/1]).
 
@@ -32,6 +33,7 @@ new(Source, Formulas) ->
 
 -spec new(id(), term(), list(id())) -> #challenge{}.
 new(Id, Source, Formulas) ->
+    ?INFO([new, ?VAR(Id), ?VAR(Source), ?VAR(Formulas)]),
     Challenge = #challenge{id=Id, generated=now(), source=Source, formulas=Formulas},
     {ok, _} = timer:apply_after(?TIMEOUT, challenge, timeout, [Id]),
     {atomic, ok} = ?TRANS(mnesia:write(Challenge)),
@@ -43,6 +45,7 @@ timeout(Id) ->
 
 -spec responded(id()) -> ok.
 responded(Id) ->
+    ?INFO([responded, ?VAR(Id)]),
     {atomic, ok} = ?TRANS(mnesia:delete({challenge, Id})),
     ok. 
 
