@@ -12,8 +12,6 @@
 %% @spec start(_Type, _StartArgs) -> ServerRet
 %% @doc application start callback for retex.
 start(_Type, _StartArgs) ->
-    ok = db:ensure_schema(),
-    ok = mnesia:start(),
     ok = formula:start(),
     ok = challenge:start(),
     ok = response:start(),
@@ -22,5 +20,4 @@ start(_Type, _StartArgs) ->
 %% @spec stop(_State) -> ServerRet
 %% @doc application stop callback for retex.
 stop(_State) ->
-    stopped = mnesia:stop(),
     ok.

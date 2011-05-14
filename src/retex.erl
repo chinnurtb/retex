@@ -24,6 +24,8 @@ start_link() ->
     application:set_env(webmachine, webmachine_logger_module, 
                         webmachine_logger),
     ensure_started(webmachine),
+    ok = db:ensure_schema(),
+    ensure_started(mnesia),
     retex_sup:start_link().
 
 %% @spec start() -> ok
@@ -35,12 +37,15 @@ start() ->
     application:set_env(webmachine, webmachine_logger_module, 
                         webmachine_logger),
     ensure_started(webmachine),
+    ok = db:ensure_schema(),
+    ensure_started(mnesia),
     application:start(retex).
 
 %% @spec stop() -> ok
 %% @doc Stop the retex server.
 stop() ->
     Res = application:stop(retex),
+    application:stop(mnesia),
     application:stop(webmachine),
     application:stop(mochiweb),
     application:stop(crypto),
