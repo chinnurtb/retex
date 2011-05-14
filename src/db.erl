@@ -1,6 +1,6 @@
 -module(db).
 
--export([ensure_schema/0, ensure_table/2]).
+-export([ensure_schema/0, ensure_table/2, backup/1, restore/1]).
 
 -spec ensure_schema() -> ok | {error, Reason :: term()}.
 ensure_schema() ->
@@ -23,3 +23,11 @@ ensure_table(Name, Tab_def) ->
 	{aborted, Reason} ->
 	    {error, Reason}
     end.
+
+-spec backup(string()) -> ok | {error, Reason :: term()}.
+backup(Filename) ->
+    mnesia:backup(Filename).
+
+-spec restore(string()) -> {atomic, Tables :: list(atom())} | {aborted, Reason :: term()}.
+restore(Filename) ->
+    mnesia:restore(Filename, [{default_op, recreate_tables}]).
