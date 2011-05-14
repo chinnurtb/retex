@@ -66,7 +66,7 @@ to_json(#formula{id=Id, url=Url, latex=Latex}) ->
      [
       {<<"id">>, Id},
       {<<"url">>, Url},
-      {<<"latex">>, Latex}
+      {<<"latex">>, case Latex of none -> null; _ -> Latex end}
      ]
     }.
 
