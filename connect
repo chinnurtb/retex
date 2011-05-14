@@ -1,0 +1,3 @@
+#!/bin/sh
+cd `dirname $0`
+erl -sname retex_shell -remsh retex@`hostname`
