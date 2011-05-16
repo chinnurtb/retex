@@ -3,7 +3,12 @@
 -include("types.hrl").
 -include_lib("proper/include/proper.hrl").
 
--export([test/1]).
+-include("basho_bench.hrl").
+-export([new/1, run/4]).
+
+-export([clean/0, generate_corpus/1, test/1, bench/0]).
+
+-define(HOST, "http://localhost:8000").
 
 -define(MATCHES(Pattern, Value),
 	begin
@@ -73,9 +78,9 @@ clean() ->
     ok.
 
 path_to_url(Path) ->
-    lists:flatten(path_to_url(Path, [])).
+    lists:flatten([?HOST, path_to_url(Path, [])]).
 path_to_url([], Acc) ->
-    ["http://localhost:8000" | Acc];
+    Acc;
 path_to_url([Elem|Path], Acc) ->
     path_to_url(Path, [Acc, "/", Elem]).
 	      
@@ -244,9 +249,50 @@ prop_get_formula_stats() ->
 		   )
 	   ).
 
+% --- basho bench driver ---
+
+pick(Gen, Size) ->
+    proper_gen:pick(Gen, Size).
+
+generate_corpus(N) ->
+    lists:foreach(
+      fun (_) ->
+	      {ok, Formula_arg} = pick(formula_arg(), 1000),
+	      apply(formula, new, Formula_arg)
+      end,
+      lists:seq(1,N)
+     ).
+
+new(_Id) ->
+    {ok, none}.
+
+run(single, KeyGen, _ValueGen, State) -> 
+    Size = KeyGen(),
+    {ok, Source} = pick(printable(), Size),
+    {ok, User} = pick(printable(), Size),
+    {ok, Latexs} = pick(vector(1, latex()), Size),
+    try
+	{Formulas, _} = challenge_response(Source, User, Latexs),
+	lists:foreach(
+	  fun ({Formula, _Latex}) ->
+		  {200, _Json} = get_formula_stats(Formula)
+	  end,
+	  lists:zip(Formulas, Latexs)
+	 ),
+	{ok, State}
+    catch
+	Class:Error ->
+ 	    {error, {Class, Error, erlang:get_stacktrace()}, State}
+    end.
+
 % --- api ---
 
 test(N) ->
+    inets:start(),
     proper:module(test, {numtests, N}).
+
+bench() ->
+    inets:start(),
+    basho_bench:main(["src/bench.config"]).
 
 % --- end ---
