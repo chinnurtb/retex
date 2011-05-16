@@ -28,6 +28,19 @@ An example of a latexpert style interaction.
     jamie@alien:~/retex$ curl -X GET http://localhost:8000/formula/form05403h5x0j46614j5l256m61180c671h3m146s610c24382e5j2r1h5r/stats
     {"responses":{"$ 1+1=2 $":2}}
 
+# Setup
+
+Requires [jailkit](http://olivier.sessink.nl/jailkit/).
+
+Setup on ubuntu:
+
+    sudo apt-get install git-core erlang python python-setuptools
+    git clone git://github.com/jamii/retex.git
+    cd retex
+    sudo ./scripts/jail_init
+    sudo ./setup_env.py
+    make
+
 # Admin
 
     ./start
