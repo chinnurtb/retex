@@ -1,4 +1,4 @@
-#*
+*#
 .#*
 *~
 
@@ -9,3 +9,11 @@ ebin/*
 *.pyc
 
 priv/www/image/*
+priv/log
+Mnesia*
+deps/
+tests/
+
+scratch
+nohup.out
+erl_crash.dump
