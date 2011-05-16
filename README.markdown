@@ -32,13 +32,12 @@ An example of a latexpert style interaction.
 
 Requires [jailkit](http://olivier.sessink.nl/jailkit/).
 
-Setup on ubuntu:
+Setup on Ubuntu:
 
-    sudo apt-get install git-core erlang python python-setuptools
+    sudo apt-get install git-core erlang python python-plastex
     git clone git://github.com/jamii/retex.git
     cd retex
     sudo ./scripts/jail_init
-    sudo ./setup_env.py
     make
 
 # Admin
