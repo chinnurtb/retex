@@ -100,28 +100,47 @@ class ErlangPort(object):
         self._out.write(what)
         self._out.flush()
 
+def spawn_worker(request):
+    r, w = os.pipe()
+    pid = os.fork()
+    if pid:
+        # parent
+        os.close(w)
+        r = os.fdopen(r)
+        return r, pid
+    else:
+        # child
+        os.close(r)
+        w = os.fdopen(w, 'w')
+        rid = request[0:4]
+        latex = request[4:]
+        response = hash_ast(latex_to_ast(latex))
+        w.write(rid)
+        w.write(response)
+        w.close()
+        sys.exit(0)
+
+import select
+
 def main():
     port = ErlangPort()
-    request = port.recv()
-    while request:
-        r, w = os.pipe()
-        pid = os.fork()
-        if pid:
-            # parent
-            os.close(w)
-            r = os.fdopen(r)
-            response = r.read()
-            port.send(response) 
-            os.kill(pid, 9) # kill child
-            request = port.recv()
-        else:
-            # child
-            os.close(r)
-            w = os.fdopen(w, 'w')
-            response = hash_ast(latex_to_ast(request)) 
-            w.write(response)
-            w.close()
-            sys.exit(0)
+    pids = {}
+    while True:
+        (files, _, _) = select.select(pids.keys() + [sys.stdin], [], [])
+        for f in files:
+            if f is sys.stdin:
+                # new request
+                request = port.recv()
+                new_f, pid = spawn_worker(request)
+                files.append(new_f)
+                pids[new_f] = pid 
+            else:
+                # response to previous request
+                port.send(f.read())
+                pid = pids[f]
+                os.kill(pid, 9)
+                os.waitpid(pid, 0)
+                del pids[f]
 
 if __name__ == "__main__":
     main()
