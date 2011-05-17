@@ -78,7 +78,7 @@ def hash_ast(ast):
 
 ### interaction with an erlang port  ###
 
-import sys
+import os, sys
 import struct
 
 # ErlangPort by thanos vassilakis
@@ -90,9 +90,8 @@ class ErlangPort(object):
         
     def recv(self):
         buf = self._in.read(2)
-        if len(buf) == 2:
-            (sz,) = struct.unpack(self.PACK, buf)
-            return self._in.read(sz)
+        (sz,) = struct.unpack(self.PACK, buf)
+        return self._in.read(sz)
         
     def send(self, what):
         sz = len(what)
@@ -102,16 +101,27 @@ class ErlangPort(object):
         self._out.flush()
 
 def main():
-    command = sys.argv[1]
     port = ErlangPort()
     request = port.recv()
     while request:
-        if command == 'ast':
-            response = str(latex_to_ast(request))
-        elif command == 'hash':
-            response = hash_ast(latex_to_ast(request))
-        port.send(response) 
-        request = port.recv()
+        r, w = os.pipe()
+        pid = os.fork()
+        if pid:
+            # parent
+            os.close(w)
+            r = os.fdopen(r)
+            response = r.read()
+            port.send(response) 
+            os.kill(pid, 9) # kill child
+            request = port.recv()
+        else:
+            # child
+            os.close(r)
+            w = os.fdopen(w, 'w')
+            response = hash_ast(latex_to_ast(request)) 
+            w.write(response)
+            w.close()
+            sys.exit(0)
 
 if __name__ == "__main__":
     main()

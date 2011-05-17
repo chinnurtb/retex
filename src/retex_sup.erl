@@ -53,5 +53,8 @@ init([]) ->
     Web = {webmachine_mochiweb,
            {webmachine_mochiweb, start, [WebConfig]},
            permanent, 5000, worker, dynamic},
-    Processes = [Web],
+    Latex = {latex,
+	     {latex, start_link, []},
+	     permanent, 5000, worker, dynamic},
+    Processes = [Web, Latex],
     {ok, { {one_for_one, 10, 10}, Processes} }.
