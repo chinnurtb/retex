@@ -7,6 +7,12 @@ from plasTeX.DOM import Node
 from plasTeX.TeX import TeX
 import hashlib
 
+import resource
+import select
+import os, sys
+import struct
+import pwd
+
 ### parse tree extractor ###
 
 class Leaf(object):
@@ -78,9 +84,6 @@ def hash_ast(ast):
 
 ### interaction with an erlang port  ###
 
-import os, sys
-import struct
-
 # ErlangPort by thanos vassilakis
 class ErlangPort(object):
     PACK = '>H'
@@ -100,6 +103,19 @@ class ErlangPort(object):
         self._out.write(what)
         self._out.flush()
 
+def jail():
+    os.nice(20)
+    resource.setrlimit(resource.RLIMIT_CPU, (1, 1)) # max 1s cpu time
+    resource.setrlimit(resource.RLIMIT_AS, (100*1024*1024, 100*1024*1024)) # max 100MB address space
+
+    user = pwd.getpwnam('retex')
+    uid, gid = user[2], user[3]
+
+    os.chroot('/retex-jail')
+
+    os.setregid(gid, gid)
+    os.setreuid(uid, uid)
+
 def spawn_worker(request):
     r, w = os.pipe()
     pid = os.fork()
@@ -110,6 +126,7 @@ def spawn_worker(request):
         return r, pid
     else:
         # child
+        jail()
         os.close(r)
         w = os.fdopen(w, 'w')
         rid = request[0:4]
@@ -120,11 +137,10 @@ def spawn_worker(request):
         w.close()
         sys.exit(0)
 
-import select
-
 def main():
     port = ErlangPort()
     pids = {}
+    # resource.setrlimit(resource.RLIMIT_NPROC, (100, 100)) # max 100 children
     while True:
         (files, _, _) = select.select(pids.keys() + [sys.stdin], [], [])
         for f in files:
