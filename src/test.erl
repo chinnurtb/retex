@@ -6,7 +6,7 @@
 -include("basho_bench.hrl").
 -export([new/1, run/4]).
 
--export([clean/0, generate_corpus/1, test/1, bench/0]).
+-export([clean/0, generate_corpus/1, quickcheck/1, loadtest/0, jailtest/0]).
 
 -define(HOST, "http://localhost:8000").
 
@@ -249,6 +249,29 @@ prop_get_formula_stats() ->
 		   )
 	   ).
 
+% --- tests for latex jail ---
+
+bad_latex() ->
+    [
+      % forking recursive macro (interpreter should exit cleanly)
+     <<"\\newcommand{\\fork}{\\fork \\fork} \\fork">>,
+     % overwrite latex script (interpreter should not recogise output commands)
+     <<"\\newwrite\\outputstream \\immediate\\openout\\outputstream=latex.py \\immediate\\write\\outputstream{fail} \\immediate\\closeout\\outputstream">>,
+     % read /etc/shadow (interpreter should warn can't read /etc/shadow)
+     <<"\\include{/etc/shadow}">>
+    ].
+
+test_bad_latex(Latex) ->
+    Hash = latex:hash(<<"\$ 1+1 = 2 \$">>),
+    try
+	latex:hash(Latex)
+    catch
+	_:_ ->
+	    ok
+    end,
+    receive after 1000 -> ok end,
+    Hash = latex:hash(<<"\$ 1+1 = 2 \$">>).
+
 % --- basho bench driver ---
 
 pick(Gen, Size) ->
@@ -287,12 +310,15 @@ run(single, KeyGen, _ValueGen, State) ->
 
 % --- api ---
 
-test(N) ->
+quickcheck(N) ->
     inets:start(),
     proper:module(test, {numtests, N}).
 
-bench() ->
+loadtest() ->
     inets:start(),
     basho_bench:main(["src/bench.config"]).
+
+jailtest() ->
+    lists:foreach(fun test_bad_latex/1, bad_latex()).
 
 % --- end ---
