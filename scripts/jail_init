@@ -11,4 +11,5 @@ jk_cp $JAIL /usr/lib/python*/
 jk_cp $JAIL /usr/lib/pymodules/python*/plasTeX/
 cp src/latex.py $JAIL/latex.py
 chown -R retex:retex $JAIL/*
-chmod a+rx ./priv/jail/latex.py
+chmod -R a-w $JAIL
+chmod a+rx $JAIL/latex.py
