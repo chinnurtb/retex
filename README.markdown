@@ -42,7 +42,9 @@ Setup on Ubuntu:
 
 # Admin
 
-    ./start
+Currently retex must be run as root in order to create the latex interpreter sandbox.
+
+    sudo ./start 
 
     ./control upload /some/dir/full/of/images
 
