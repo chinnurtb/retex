@@ -105,7 +105,7 @@ class ErlangPort(object):
 
 def jail():
     os.nice(20)
-    resource.setrlimit(resource.RLIMIT_CPU, (1, 1)) # max 1s cpu time
+    resource.setrlimit(resource.RLIMIT_CPU, (5, 5)) # max 5s cpu time
     resource.setrlimit(resource.RLIMIT_AS, (100*1024*1024, 100*1024*1024)) # max 100MB address space
 
     user = pwd.getpwnam('retex')
